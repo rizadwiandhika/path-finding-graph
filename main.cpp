@@ -29,10 +29,10 @@ class Graph {
 };
 
 int main() {
-  const int JUMLAH_NODE = 8;
+  const int JUMLAH_NODE = 9;
   Graph g(JUMLAH_NODE);
 
-  /* g.add_edge(0, 1, 5);
+  g.add_edge(0, 1, 5);
   g.add_edge(0, 2, 2);
   g.add_edge(0, 3, 4);
 
@@ -43,7 +43,7 @@ int main() {
 
   g.add_edge(4, 8, 7);
   g.add_edge(5, 7, 6);
-  g.add_edge(6, 7, 1); */
+  g.add_edge(6, 7, 1);
 
   /* g.add_edge(0, 1, 3);
   g.add_edge(0, 4, 4);
@@ -61,37 +61,37 @@ int main() {
   g.add_edge(6, 7, 3); */
 
 
-  g.add_edge(0, 1, 3);
-  g.add_edge(0, 4, 4);
+  // g.add_edge(0, 1, 3);
+  // g.add_edge(0, 4, 4);
 
-  g.add_edge(1, 2, 4);
-  g.add_edge(1, 4, 5);
-  g.add_edge(4, 1, 5);
-  g.add_edge(4, 5, 2);
+  // g.add_edge(1, 2, 4);
+  // g.add_edge(1, 4, 5);
+  // g.add_edge(4, 1, 5);
+  // g.add_edge(4, 5, 2);
 
-  g.add_edge(2, 3, 4);
-  g.add_edge(2, 5, 5);
-  g.add_edge(4, 5, 2);
-  g.add_edge(1, 2, 4);
-  g.add_edge(5, 2, 5);
-  g.add_edge(5, 6, 4);
+  // g.add_edge(2, 3, 4);
+  // g.add_edge(2, 5, 5);
+  // g.add_edge(4, 5, 2);
+  // g.add_edge(1, 2, 4);
+  // g.add_edge(5, 2, 5);
+  // g.add_edge(5, 6, 4);
 
-  g.add_edge(5, 4, 2);
-  g.add_edge(5, 6, 4);
-  g.add_edge(5, 2, 5);
-  g.add_edge(5, 6, 4);
-  g.add_edge(2, 3, 4);
-  g.add_edge(2, 5, 5);
-  g.add_edge(2, 1, 4);
-  g.add_edge(2, 3, 4);
-  g.add_edge(6, 7, 3);
+  // g.add_edge(5, 4, 2);
+  // g.add_edge(5, 6, 4);
+  // g.add_edge(5, 2, 5);
+  // g.add_edge(5, 6, 4);
+  // g.add_edge(2, 3, 4);
+  // g.add_edge(2, 5, 5);
+  // g.add_edge(2, 1, 4);
+  // g.add_edge(2, 3, 4);
+  // g.add_edge(6, 7, 3);
 
-  g.add_edge(6, 7, 3);
-  g.add_edge(2, 3, 4);
-  g.add_edge(6, 7, 3);
-  g.add_edge(5, 6, 4);
+  // g.add_edge(6, 7, 3);
+  // g.add_edge(2, 3, 4);
+  // g.add_edge(6, 7, 3);
+  // g.add_edge(5, 6, 4);
 
-  g.add_edge(6, 7, 3);
+  // g.add_edge(6, 7, 3);
 
 
 
@@ -203,13 +203,13 @@ string Graph::uniformed_cost(int source, int dest) {
   }
 
   cost_table[source] = 0;
-  visited[source] = 0;
   queue_list.push_back(make_pair(to_string(source), cost_table[source]));
 
   while (!queue_list.empty()) {
     str_source_weight = queue_list.front();
     queue_list.pop_front();
     source = str_source_weight.first[0] - '0';
+    visited[source] = true;
 
     cout << "Parent: " << source << endl;
 
@@ -221,8 +221,7 @@ string Graph::uniformed_cost(int source, int dest) {
 
       string temp = str_source_weight.first;
       temp.insert(AT_FRONT, to_string(it->first));
-      queue_list.push_back(make_pair(temp, cost_table[it->second]));
-      visited[it->first] = true;
+      queue_list.push_back(make_pair(temp, cost_table[it->first]));
     }
 
     // * Harusnya pake priority queue aja
@@ -235,7 +234,7 @@ string Graph::uniformed_cost(int source, int dest) {
 
     
     for (queuelist_it = queue_list.begin(); queuelist_it != queue_list.end(); queuelist_it++) {
-      cout << queuelist_it->first << " ";
+      cout << queuelist_it->first << "(w:" << queuelist_it->second << ") ";
     }
     cout << endl;
 
