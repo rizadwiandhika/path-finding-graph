@@ -1,5 +1,5 @@
-#include <bits/stdc++.h>
-// #include "/Users/riza/stdc++.h"
+// #include <bits/stdc++.h>
+#include "/Users/riza/stdc++.h"
 
 using namespace std;
 
@@ -53,7 +53,6 @@ int main() {
 
   /* Hill-climbing search */
   cout << "Hill-climbing search:" << endl;
-  // result = g.hill_climbing_search(0, 7);
   result = g.hill_climbing_search(0, 7);
   for (int i = 0; i < result.length(); i++) {
     if (i == 0) cout << "S";
@@ -92,11 +91,12 @@ void Graph::add_edge_undirected(int source, int dest, int weight) {
 string Graph::hill_climbing_search(int source, int dest) {
   string source_to_parent_path = to_string(source);
   const int AT_FRONT = 0;
-  int smallest_heuristic = heuristic[source];
+  const int GOAL = 0;
+
   list< pair<string, int> > queue_list;
   list< pair<int, int> >::iterator child_it;
-  bool visited[V];
   string result;
+  bool visited[V];
 
   for (int i = 0; i < V; i++) {
     visited[i] = false;
@@ -107,36 +107,30 @@ string Graph::hill_climbing_search(int source, int dest) {
   while (!queue_list.empty()) {
     string parent_path = queue_list.front().first;
     int parent = queue_list.front().first[0] - '0';
+    int local_smallest_heuristic = heuristic[parent];
     list< pair<string, int> > queue_for_next;
 
     visited[parent] = true;
     queue_list.pop_front();
 
     result = parent_path;
+    if (local_smallest_heuristic == GOAL) break;
 
     for (child_it = adj[parent].begin(); child_it != adj[parent].end(); child_it++) {
       int child = child_it->first;
       if (visited[child]) continue;
 
-      // smallest heuristic child ?
-      if (heuristic[child] <= smallest_heuristic) {
-        if (heuristic[child] < smallest_heuristic) queue_for_next.clear();
+      if (heuristic[child] <= local_smallest_heuristic) {
+        if (heuristic[child] < local_smallest_heuristic) queue_for_next.clear();
 
-        smallest_heuristic = heuristic[child];
+        local_smallest_heuristic = heuristic[child];
         string child_path = parent_path;
         child_path.insert(AT_FRONT, to_string(child));
         queue_for_next.push_back(make_pair(child_path, heuristic[child]));
       }
     }
 
-    /* Bisa: stuck / goal / lanjut */
-    if (!queue_for_next.empty()) {
-      copy(queue_for_next.rbegin(), queue_for_next.rend(), front_inserter(queue_list));
-    }
-
-    // Stuck
-
-    // Goal / Next visit
+    copy(queue_for_next.rbegin(), queue_for_next.rend(), front_inserter(queue_list));
   }
   
   reverse(result.begin(), result.end());
