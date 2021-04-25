@@ -1,5 +1,5 @@
-// #include <bits/stdc++.h>
-#include "/Users/riza/stdc++.h"
+#include <bits/stdc++.h>
+// #include "/Users/riza/stdc++.h"
 
 using namespace std;
 
