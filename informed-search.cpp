@@ -1,15 +1,7 @@
-#include "/Users/riza/stdc++.h"
-// #include <bits/stdc++.h>
+#include <bits/stdc++.h>
+// #include "/Users/riza/stdc++.h"
 
 using namespace std;
-
-// Helper buat sorting list
-struct WeightComparator {
-  bool operator ()(const pair<string, int> p1, const pair<string, int> p2) {
-    if (p1.second == p2.second) return p1 < p2;
-    return p1.second < p2.second;
-  }
-};
 
 // Weighted Graph (can be directed or undirected)
 class Graph {
@@ -61,6 +53,7 @@ int main() {
 
   /* Hill-climbing search */
   cout << "Hill-climbing search:" << endl;
+  // result = g.hill_climbing_search(0, 7);
   result = g.hill_climbing_search(0, 7);
   for (int i = 0; i < result.length(); i++) {
     if (i == 0) cout << "S";
@@ -99,41 +92,53 @@ void Graph::add_edge_undirected(int source, int dest, int weight) {
 string Graph::hill_climbing_search(int source, int dest) {
   string source_to_parent_path = to_string(source);
   const int AT_FRONT = 0;
-  bool visited[V];
+  int smallest_heuristic = heuristic[source];
+  list< pair<string, int> > queue_list;
   list< pair<int, int> >::iterator child_it;
+  bool visited[V];
+  string result;
 
   for (int i = 0; i < V; i++) {
     visited[i] = false;
   }
 
-  while (1) {
-    int parent = source_to_parent_path[0] - '0';
-    int next_visit_node = INT_MAX;
-    list<int> potential_child;
+  queue_list.push_back(make_pair(to_string(source), heuristic[source]));
+
+  while (!queue_list.empty()) {
+    string parent_path = queue_list.front().first;
+    int parent = queue_list.front().first[0] - '0';
+    list< pair<string, int> > queue_for_next;
 
     visited[parent] = true;
+    queue_list.pop_front();
+
+    result = parent_path;
 
     for (child_it = adj[parent].begin(); child_it != adj[parent].end(); child_it++) {
       int child = child_it->first;
       if (visited[child]) continue;
 
-      next_visit_node = hill_climbing_next_visit(parent, child, next_visit_node);
+      // smallest heuristic child ?
+      if (heuristic[child] <= smallest_heuristic) {
+        if (heuristic[child] < smallest_heuristic) queue_for_next.clear();
+
+        smallest_heuristic = heuristic[child];
+        string child_path = parent_path;
+        child_path.insert(AT_FRONT, to_string(child));
+        queue_for_next.push_back(make_pair(child_path, heuristic[child]));
+      }
     }
 
     /* Bisa: stuck / goal / lanjut */
+    if (!queue_for_next.empty()) {
+      copy(queue_for_next.rbegin(), queue_for_next.rend(), front_inserter(queue_list));
+    }
 
     // Stuck
-    if (next_visit_node == INT_MAX) break;
 
     // Goal / Next visit
-    string next_visit_path = source_to_parent_path;
-    next_visit_path.insert(AT_FRONT, to_string(next_visit_node));
-    source_to_parent_path = next_visit_path;
-
-    // Goal
-    if (next_visit_node == dest) break;
   }
   
-  reverse(source_to_parent_path.begin(), source_to_parent_path.end());
-  return source_to_parent_path;
+  reverse(result.begin(), result.end());
+  return result;
 }
