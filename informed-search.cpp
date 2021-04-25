@@ -18,22 +18,20 @@ class Graph {
   double* heuristic;
   list< pair<int, int> >* adj;
 
-  public:
-    string dfs_result;
-
-    Graph(int);
-    void add_heuristic(int, double);
-    void add_edge(int, int, int);
-    void add_edge_undirected(int, int, int);
-    string hill_climbing_search(int, int);
-
-  int determine_heuristic_next_visit(int parent, int new_child, int current_candidate_next) {
+  int hill_climbing_next_visit(int parent, int new_child, int current_candidate_next) {
     if (heuristic[parent] <= heuristic[new_child]) return parent;
     if (V < current_candidate_next) return new_child;
 
     if (heuristic[new_child] < heuristic[current_candidate_next]) return new_child;
     return current_candidate_next;
   }
+
+  public:
+    Graph(int);
+    void add_heuristic(int, double);
+    void add_edge(int, int, int);
+    void add_edge_undirected(int, int, int);
+    string hill_climbing_search(int, int);
 };
 
 int main() {
@@ -110,7 +108,7 @@ string Graph::hill_climbing_search(int source, int dest) {
 
   while (1) {
     int parent = source_to_parent_path[0] - '0';
-    int next_visit_node = 10000;
+    int next_visit_node = INT_MAX;
     list<int> potential_child;
 
     visited[parent] = true;
@@ -119,19 +117,20 @@ string Graph::hill_climbing_search(int source, int dest) {
       int child = child_it->first;
       if (visited[child]) continue;
 
-      next_visit_node = determine_heuristic_next_visit(parent, child, next_visit_node);
+      next_visit_node = hill_climbing_next_visit(parent, child, next_visit_node);
     }
 
     /* Bisa: stuck / goal / lanjut */
 
     // Stuck
-    if (next_visit_node == 10000) break;
+    if (next_visit_node == INT_MAX) break;
 
     // Goal / Next visit
     string next_visit_path = source_to_parent_path;
     next_visit_path.insert(AT_FRONT, to_string(next_visit_node));
     source_to_parent_path = next_visit_path;
 
+    // Goal
     if (next_visit_node == dest) break;
   }
   
