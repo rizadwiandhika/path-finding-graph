@@ -172,6 +172,7 @@ string Graph::uniformed_cost_search(int source, int dest) {
   while (!visit_list.empty()) {
     parent_path_and_cost = visit_list.top();
     int parent = parent_path_and_cost.first[0] - '0';
+    int source_parent_cost = parent_path_and_cost.second;
 
     visit_list.pop();
     
@@ -185,8 +186,7 @@ string Graph::uniformed_cost_search(int source, int dest) {
       int parent_child_cost = it->second;
 
       if (visited[child]) continue;
-
-      int source_parent_cost = parent_path_and_cost.second;
+      
       string child_path = parent_path_and_cost.first;
 
       child_path.insert(AT_FRONT, to_string(child));
