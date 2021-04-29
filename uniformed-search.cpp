@@ -173,10 +173,12 @@ string Graph::uniformed_cost_search(int source, int dest) {
     parent_path_and_cost = visit_list.top();
     int parent = parent_path_and_cost.first[0] - '0';
 
+    visit_list.pop();
+    
     if (parent == dest) break;
+    if (visited[parent]) continue;
 
     visited[parent] = true;
-    visit_list.pop();
 
     for (it = adj[parent].begin(); it != adj[parent].end(); it++) {
       int child = it->first;
