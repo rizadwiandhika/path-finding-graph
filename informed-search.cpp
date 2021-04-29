@@ -1,7 +1,16 @@
-#include <bits/stdc++.h>
-// #include "/Users/riza/stdc++.h"
+// #include <bits/stdc++.h>
+#include "/Users/riza/stdc++.h"
 
 using namespace std;
+
+typedef pair<string, int> P;
+
+// Fungsi untuk urutin priority queue berdasarkan elemen 2 secara ascending
+struct Order {
+  bool operator()(P const& a, P const& b) const {
+    return a.second > b.second;
+  }
+};
 
 // Weighted Graph (can be directed or undirected)
 class Graph {
@@ -24,7 +33,10 @@ class Graph {
     void add_edge(int, int, int);
     void add_edge_undirected(int, int, int);
     string hill_climbing_search(int, int);
+    string a_star_search(int, int);
 };
+
+/* Heuristic value itu harus selalu underestimate dari cost sebenarnya */
 
 int main() {
   const int JUMLAH_NODE = 8;
@@ -54,6 +66,15 @@ int main() {
   /* Hill-climbing search */
   cout << "Hill-climbing search:" << endl;
   result = g.hill_climbing_search(0, 7);
+  for (int i = 0; i < result.length(); i++) {
+    if (i == 0) cout << "S";
+    else cout << " -> " << (char)(result[i] - '1' + 'A');
+  }
+  cout << endl << endl;
+
+  /* A* search */
+  cout << "A* search:" << endl;
+  result = g.a_star_search(0, 7);
   for (int i = 0; i < result.length(); i++) {
     if (i == 0) cout << "S";
     else cout << " -> " << (char)(result[i] - '1' + 'A');
@@ -97,9 +118,11 @@ string Graph::hill_climbing_search(int source, int dest) {
   list< pair<int, int> >::iterator child_it;
   string result;
   bool visited[V];
+  int score[V];
 
   for (int i = 0; i < V; i++) {
     visited[i] = false;
+    score[i] = INT_MAX;
   }
 
   queue_list.push_back(make_pair(to_string(source), heuristic[source]));
@@ -133,6 +156,54 @@ string Graph::hill_climbing_search(int source, int dest) {
     copy(queue_for_next.rbegin(), queue_for_next.rend(), front_inserter(queue_list));
   }
   
+  reverse(result.begin(), result.end());
+  return result;
+}
+
+string Graph::a_star_search(int source, int dest) {
+  const int AT_FRONT = 0;
+  bool visited[V];
+  int score[V];
+  priority_queue<P, vector<P>, Order> visit_list;
+  list< pair<int, int> >::iterator it;
+  pair<string, int> parent_path_and_score;
+
+  for (int i = 0; i < V; i++) {
+    visited[i] = false;
+    score[i] = INT_MAX;
+  }
+
+  visit_list.push(make_pair(to_string(source), 0 + heuristic[source]));
+
+  while (!visit_list.empty()) {
+    parent_path_and_score = visit_list.top();
+    int parent = parent_path_and_score.first[0] - '0';
+    int parent_score = parent_path_and_score.second;
+    int source_parent_cost = parent_score - heuristic[parent];
+
+    visit_list.pop();
+    
+    if (parent == dest) break;
+    if (visited[parent] && score[parent] <= parent_score) continue;
+
+    visited[parent] = true;
+    score[parent] = parent_score;
+
+    for (it = adj[parent].begin(); it != adj[parent].end(); it++) {
+      int child = it->first;
+      int parent_child_cost = it->second;
+      int child_score = source_parent_cost + parent_child_cost + heuristic[child];
+
+      if (visited[child] && score[child] <= child_score) continue;
+
+      string child_path = parent_path_and_score.first;
+
+      child_path.insert(AT_FRONT, to_string(child));
+      visit_list.push(make_pair(child_path, child_score));
+    }
+  }
+
+  string result = parent_path_and_score.first;
   reverse(result.begin(), result.end());
   return result;
 }
