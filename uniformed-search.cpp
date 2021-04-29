@@ -3,15 +3,16 @@
 
 using namespace std;
 
-// Helper buat sorting list
-struct WeightComparator {
-  bool operator ()(const pair<string, int> p1, const pair<string, int> p2) {
-    if (p1.second == p2.second) return p1 < p2;
-    return p1.second < p2.second;
+typedef pair<string, int> P;
+
+// Fungsi untuk urutin priority queue berdasarkan elemen 2 secara ascending
+struct Order {
+  bool operator()(P const& a, P const& b) const {
+    return a.second > b.second;
   }
 };
 
-// Weighted Graph (can be directed or undirected)
+// Weighted Graph (bisa directed or undirected)
 class Graph {
   int V;
   bool* visited;
@@ -46,6 +47,7 @@ int main() {
   g.add_edge_undirected(5, 6, 4);
   g.add_edge_undirected(6, 7, 3);
 
+  /* BFS search */
   result = g.bfs_search(0, 7);
   cout << "BFS search:" << endl;
   for (int i = 0; i < result.length(); i++) {
@@ -54,7 +56,7 @@ int main() {
   }
   cout << endl << endl;
 
-
+  /* DFS search */
   g.initialize_dfs();
   g.dfs_search(0, 7);
   result = g.dfs_result;
@@ -65,6 +67,7 @@ int main() {
   }
   cout << endl << endl;
 
+  /* Uniform cost search */
   result = g.uniformed_cost_search(0, 7);
   cout << "Uniform-cost search:" << endl;
   for (int i = 0; i < result.length(); i++) {
@@ -155,50 +158,41 @@ string Graph::bfs_search(int source, int dest) {
 
 string Graph::uniformed_cost_search(int source, int dest) {
   const int AT_FRONT = 0;
-  int cost_table[V];
   bool visited[V];
-  list< pair<int, int> >::iterator child_it;
-  list< pair<string, int> > queue_list;
-  pair<string, int> parent_path_and_weight;
+  priority_queue<P, vector<P>, Order> visit_list;
+  list< pair<int, int> >::iterator it;
+  pair<string, int> parent_path_and_cost;
 
   for (int i = 0; i < V; i++) {
-    cost_table[i] = INT_MAX;
     visited[i] = false;
   }
 
-  cost_table[source] = 0;
-  queue_list.push_back(make_pair(to_string(source), cost_table[source]));
+  visit_list.push(make_pair(to_string(source), 0));
 
-  while (!queue_list.empty()) {
-    parent_path_and_weight = queue_list.front();
-    int parent = parent_path_and_weight.first[0] - '0';
+  while (!visit_list.empty()) {
+    parent_path_and_cost = visit_list.top();
+    int parent = parent_path_and_cost.first[0] - '0';
+
+    if (parent == dest) break;
+
     visited[parent] = true;
-    queue_list.pop_front();
+    visit_list.pop();
 
-    for (child_it = adj[parent].begin(); child_it != adj[parent].end(); child_it++) {
-      int child = child_it->first;
-      int parent_to_child_cost = child_it->second;
+    for (it = adj[parent].begin(); it != adj[parent].end(); it++) {
+      int child = it->first;
+      int parent_child_cost = it->second;
 
       if (visited[child]) continue;
 
-      int source_to_child_cost = cost_table[parent] + parent_to_child_cost;
-      if (source_to_child_cost < cost_table[child]) {
-        cost_table[child] = source_to_child_cost;
-      }
+      int source_parent_cost = parent_path_and_cost.second;
+      string child_path = parent_path_and_cost.first;
 
-      string parent_path = parent_path_and_weight.first;
-      parent_path.insert(AT_FRONT, to_string(child));
-      queue_list.push_back(make_pair(parent_path, cost_table[child]));
+      child_path.insert(AT_FRONT, to_string(child));
+      visit_list.push(make_pair(child_path, source_parent_cost + parent_child_cost ));
     }
-
-    // Tentuin next visit dari queue list yang cost nya minimum
-    queue_list.sort(WeightComparator());
-
-    int next_visit = queue_list.front().first[0] - '0';
-    if (next_visit == dest) break;
   }
 
-  string result = queue_list.front().first;
+  string result = parent_path_and_cost.first;
   reverse(result.begin(), result.end());
   return result;
 }
