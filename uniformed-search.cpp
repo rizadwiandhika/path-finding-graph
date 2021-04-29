@@ -39,8 +39,8 @@ int main() {
   Graph g(JUMLAH_NODE);
   g.add_edge_undirected(0, 1, 3);
   g.add_edge_undirected(0, 4, 4);
-  g.add_edge_undirected(1, 4, 5);
   g.add_edge_undirected(1, 2, 4);
+  g.add_edge_undirected(1, 4, 5);
   g.add_edge_undirected(2, 3, 4);
   g.add_edge_undirected(2, 5, 5);
   g.add_edge_undirected(4, 5, 2);
